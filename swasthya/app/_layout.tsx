@@ -76,6 +76,83 @@ export default function RootLayout() {
               animation: 'slide_from_right'
             }} 
           />
+          <Stack.Screen 
+            name="personal-information" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="medical-history" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="health-goals" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="blockchain-keys" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="data-permissions" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="language-settings" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="accessibility-settings" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="help-center" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="contact-support" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="send-feedback" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
+          <Stack.Screen 
+            name="add-record" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right'
+            }} 
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

@@ -303,9 +303,9 @@ export default function RecordsScreen() {
             stiffness: 100,
             delay: 1200,
           }}
-          style={styles.addButton}
+          style={styles.addButtonContainer}
         >
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/add-record' as any)}>
             <LinearGradient
               colors={colors.gradientPrimary as any}
               style={styles.addButtonGradient}
@@ -334,11 +334,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
     marginBottom: 4,
+    textAlign: 'center',
   },
   headerSubtitle: {
     color: 'rgba(255, 255, 255, 0.8)',
     fontSize: Typography.fontSize.base,
+    fontFamily: Typography.fontFamily.regular,
+    textAlign: 'center',
   },
   searchSection: {
     paddingHorizontal: 20,
@@ -500,8 +504,9 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     marginLeft: 4,
   },
-  addButton: {
-    marginBottom: 20,
+  addButtonContainer: {
+    marginTop: 24,
+    marginBottom: 32,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -514,12 +519,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    paddingVertical: 18,
   },
   addButtonText: {
     color: '#fff',
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    marginLeft: 8,
+    fontFamily: Typography.fontFamily.bold,
+    marginLeft: 12,
   },
 });

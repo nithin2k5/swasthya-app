@@ -10,16 +10,6 @@ import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from
 
 const { width } = Dimensions.get('window');
 
-interface HealthMetric {
-  id: string;
-  label: string;
-  value: string;
-  unit: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  color: string;
-  trend: 'up' | 'down' | 'stable';
-  trendValue: string;
-}
 
 interface QuickAction {
   id: string;
@@ -44,48 +34,6 @@ export default function HomeScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  const healthMetrics: HealthMetric[] = [
-    {
-      id: 'heartRate',
-      label: 'Heart Rate',
-      value: '72',
-      unit: 'BPM',
-      icon: 'heart',
-      color: HealthColors.heartRate,
-      trend: 'stable',
-      trendValue: '0%',
-    },
-    {
-      id: 'steps',
-      label: 'Steps',
-      value: '8,432',
-      unit: 'steps',
-      icon: 'walk',
-      color: HealthColors.steps,
-      trend: 'up',
-      trendValue: '+12%',
-    },
-    {
-      id: 'sleep',
-      label: 'Sleep',
-      value: '7.5',
-      unit: 'hours',
-      icon: 'moon',
-      color: HealthColors.sleep,
-      trend: 'up',
-      trendValue: '+15%',
-    },
-    {
-      id: 'water',
-      label: 'Water',
-      value: '2.1',
-      unit: 'liters',
-      icon: 'water',
-      color: HealthColors.water,
-      trend: 'down',
-      trendValue: '-5%',
-    },
-  ];
 
   const quickActions: QuickAction[] = [
     {
@@ -129,27 +77,6 @@ export default function HomeScreen() {
     return 'Good evening';
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return 'trending-up';
-      case 'down':
-        return 'trending-down';
-      default:
-        return 'remove';
-    }
-  };
-
-  const getTrendColor = (trend: string) => {
-    switch (trend) {
-      case 'up':
-        return HealthColors.excellent;
-      case 'down':
-        return HealthColors.poor;
-      default:
-        return HealthColors.fair;
-    }
-  };
 
   const handleQuickAction = (actionId: string) => {
     switch (actionId) {
@@ -275,67 +202,6 @@ export default function HomeScreen() {
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Health Metrics */}
-        <MotiView
-          from={{ opacity: 0, translateY: 50 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{
-            type: 'spring',
-            damping: 15,
-            stiffness: 100,
-            delay: 900,
-          }}
-          style={styles.metricsContainer}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Today's Health</Text>
-          <View style={styles.metricsGrid}>
-            {healthMetrics.map((metric, index) => (
-              <MotiView
-                key={metric.id}
-                from={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{
-                  type: 'spring',
-                  damping: 15,
-                  stiffness: 100,
-                  delay: 1000 + index * 100,
-                }}
-                style={[styles.metricCard, { backgroundColor: colors.surface }]}
-              >
-                <TouchableOpacity style={styles.metricContent}>
-                  <View style={[styles.metricIcon, { backgroundColor: `${metric.color}20` }]}>
-                    <Ionicons name={metric.icon} size={24} color={metric.color} />
-                  </View>
-                  
-                  <View style={styles.metricInfo}>
-                    <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>
-                      {metric.label}
-                    </Text>
-                    <View style={styles.metricValueContainer}>
-                      <Text style={[styles.metricValue, { color: colors.text }]}>
-                        {metric.value}
-                      </Text>
-                      <Text style={[styles.metricUnit, { color: colors.textMuted }]}>
-                        {metric.unit}
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  <View style={styles.metricTrend}>
-                    <Ionicons 
-                      name={getTrendIcon(metric.trend)} 
-                      size={16} 
-                      color={getTrendColor(metric.trend)} 
-                    />
-                    <Text style={[styles.metricTrendText, { color: getTrendColor(metric.trend) }]}>
-                      {metric.trendValue}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </MotiView>
-            ))}
-          </View>
-        </MotiView>
 
         {/* Quick Actions */}
         <MotiView
@@ -345,7 +211,7 @@ export default function HomeScreen() {
             type: 'spring',
             damping: 15,
             stiffness: 100,
-            delay: 1400,
+            delay: 900,
           }}
           style={styles.actionsContainer}
         >
@@ -360,7 +226,7 @@ export default function HomeScreen() {
                   type: 'spring',
                   damping: 15,
                   stiffness: 100,
-                  delay: 1500 + index * 100,
+                  delay: 1000 + index * 100,
                 }}
                 style={styles.actionCard}
               >
@@ -393,7 +259,7 @@ export default function HomeScreen() {
             type: 'spring',
             damping: 15,
             stiffness: 100,
-            delay: 1800,
+            delay: 1400,
           }}
           style={styles.activityContainer}
         >
@@ -430,7 +296,7 @@ export default function HomeScreen() {
                   type: 'spring',
                   damping: 15,
                   stiffness: 100,
-                  delay: 1900 + index * 100,
+                  delay: 1500 + index * 100,
                 }}
                 style={styles.activityItem}
               >
@@ -461,7 +327,7 @@ export default function HomeScreen() {
             type: 'spring',
             damping: 15,
             stiffness: 100,
-            delay: 2200,
+            delay: 1800,
           }}
           style={styles.insightsContainer}
         >
@@ -580,142 +446,89 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
   sectionTitle: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    marginBottom: 16,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 20,
+    marginLeft: 4,
   },
-  metricsContainer: {
-    marginTop: -10,
-    marginBottom: 32,
+  actionsContainer: {
+    marginTop: 8,
+    marginBottom: 40,
   },
-  metricsGrid: {
+  actionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginHorizontal: -8,
+    marginHorizontal: -12,
   },
-  metricCard: {
-    width: (width - 56) / 2,
-    margin: 8,
+  actionCard: {
+    width: (width - 72) / 2,
+    margin: 12,
     borderRadius: BorderRadius.xl,
-    padding: 16,
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  metricContent: {
-    alignItems: 'flex-start',
+  actionCardGradient: {
+    padding: 24,
+    alignItems: 'center',
+    minHeight: 140,
+    justifyContent: 'center',
   },
-  metricIcon: {
+  actionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  actionTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semiBold,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  actionSubtitle: {
+    fontSize: Typography.fontSize.sm,
+    fontFamily: Typography.fontFamily.regular,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  activityContainer: {
+    marginBottom: 40,
+  },
+  activityCard: {
+    borderRadius: BorderRadius.xl,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  activityItem: {
+    marginBottom: 16,
+  },
+  activityItemContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  activityIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
-  },
-  metricInfo: {
-    marginBottom: 8,
-  },
-  metricLabel: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.medium,
-    marginBottom: 4,
-  },
-  metricValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  metricValue: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.bold,
-  },
-  metricUnit: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.medium,
-    marginLeft: 4,
-  },
-  metricTrend: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  metricTrendText: {
-    fontSize: Typography.fontSize.xs,
-    fontWeight: Typography.fontWeight.semibold,
-    marginLeft: 4,
-  },
-  actionsContainer: {
-    marginBottom: 32,
-  },
-  actionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -8,
-  },
-  actionCard: {
-    width: (width - 56) / 2,
-    margin: 8,
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  actionCardGradient: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  actionIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  actionTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  actionSubtitle: {
-    fontSize: Typography.fontSize.sm,
-    textAlign: 'center',
-  },
-  activityContainer: {
-    marginBottom: 32,
-  },
-  activityCard: {
-    borderRadius: BorderRadius.xl,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  activityItem: {
-    marginBottom: 12,
-  },
-  activityItemContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   activityInfo: {
     flex: 1,
@@ -723,35 +536,37 @@ const styles = StyleSheet.create({
   activityTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    marginBottom: 2,
+    fontFamily: Typography.fontFamily.semiBold,
+    marginBottom: 4,
   },
   activityTime: {
     fontSize: Typography.fontSize.sm,
+    fontFamily: Typography.fontFamily.regular,
   },
   insightsContainer: {
-    marginBottom: 32,
+    marginBottom: 40,
   },
   insightCard: {
     borderRadius: BorderRadius.xl,
-    padding: 20,
+    padding: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
   },
   insightContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   insightIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 20,
   },
   insightText: {
     flex: 1,
@@ -760,14 +575,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    marginBottom: 8,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 10,
   },
   insightDescription: {
     color: 'rgba(255, 255, 255, 0.9)',
     fontSize: Typography.fontSize.base,
+    fontFamily: Typography.fontFamily.regular,
     lineHeight: Typography.lineHeight.base,
   },
   bottomSpacing: {
-    height: 20,
+    height: 32,
   },
 });

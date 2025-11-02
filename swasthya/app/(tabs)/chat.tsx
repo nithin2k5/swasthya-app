@@ -31,18 +31,20 @@ interface QuickAction {
   text: string;
   icon: keyof typeof Ionicons.glyphMap;
   category: 'symptoms' | 'general' | 'emergency';
+  color?: string;
 }
 
-const quickActions: QuickAction[] = [
-  { id: '1', text: 'I have a headache', icon: 'medical', category: 'symptoms' },
-  { id: '2', text: 'Check my symptoms', icon: 'search', category: 'symptoms' },
-  { id: '3', text: 'Medication reminder', icon: 'alarm', category: 'general' },
-  { id: '4', text: 'Health tips', icon: 'bulb', category: 'general' },
-  { id: '5', text: 'Emergency help', icon: 'warning', category: 'emergency' },
-  { id: '6', text: 'Find nearby hospital', icon: 'location', category: 'emergency' },
-];
-
 const { width } = Dimensions.get('window');
+const isTablet = width >= 768;
+
+const quickActions: QuickAction[] = [
+  { id: '1', text: 'I have a headache', icon: 'medical-outline', category: 'symptoms' },
+  { id: '2', text: 'Check my symptoms', icon: 'search-outline', category: 'symptoms' },
+  { id: '3', text: 'Medication reminder', icon: 'alarm-outline', category: 'general' },
+  { id: '4', text: 'Health tips', icon: 'bulb-outline', category: 'general' },
+  { id: '5', text: 'Emergency help', icon: 'warning-outline', category: 'emergency' },
+  { id: '6', text: 'Find nearby hospital', icon: 'location-outline', category: 'emergency' },
+];
 
 export default function ChatScreen() {
   const { colors, isDark } = useTheme();
@@ -155,6 +157,17 @@ export default function ChatScreen() {
     }
   };
 
+  const getQuickActionColor = (category: string) => {
+    switch (category) {
+      case 'emergency':
+        return HealthColors.error;
+      case 'symptoms':
+        return colors.accent;
+      default:
+        return colors.primary;
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -169,14 +182,14 @@ export default function ChatScreen() {
           animate={{ opacity: 1, translateY: 0 }}
           transition={{
             type: 'spring',
-            damping: 15,
+            damping: 20,
             stiffness: 100,
             delay: 200,
           }}
           style={styles.headerContent}
         >
           <View style={styles.aiAvatar}>
-            <Ionicons name="medical" size={24} color="#fff" />
+            <Ionicons name="medical" size={28} color="#fff" />
           </View>
           <View style={styles.headerInfo}>
             <Text style={styles.headerTitle}>AI Health Assistant</Text>
@@ -196,7 +209,7 @@ export default function ChatScreen() {
             </View>
           </View>
           <TouchableOpacity style={styles.headerButton}>
-            <Ionicons name="information-circle" size={24} color="#fff" />
+            <Ionicons name="information-circle-outline" size={24} color="#fff" />
           </TouchableOpacity>
         </MotiView>
       </LinearGradient>
@@ -219,13 +232,13 @@ export default function ChatScreen() {
               animate={{ opacity: 1, translateY: 0 }}
               transition={{
                 type: 'spring',
-                damping: 15,
+                damping: 20,
                 stiffness: 100,
                 delay: 400,
               }}
               style={styles.quickActionsContainer}
             >
-              <Text style={[styles.quickActionsTitle, { color: colors.text }]}>Quick Actions</Text>
+              <Text style={[styles.quickActionsTitle, { color: colors.text, fontFamily: Typography.fontFamily.bold }]}>Quick Actions</Text>
               <View style={styles.quickActionsGrid}>
                 {quickActions.map((action, index) => (
                   <MotiView
@@ -234,7 +247,7 @@ export default function ChatScreen() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{
                       type: 'spring',
-                      damping: 15,
+                      damping: 20,
                       stiffness: 100,
                       delay: 600 + index * 100,
                     }}
@@ -243,21 +256,33 @@ export default function ChatScreen() {
                       style={[
                         styles.quickActionButton,
                         { 
-                          backgroundColor: colors.surface,
-                          borderColor: action.category === 'emergency' ? HealthColors.error : colors.border
+                          backgroundColor: action.category === 'emergency' 
+                            ? `${HealthColors.error}15` 
+                            : colors.surface,
+                          borderColor: action.category === 'emergency' 
+                            ? HealthColors.error 
+                            : colors.border
                         }
                       ]}
                       onPress={() => handleQuickAction(action)}
                     >
-                      <Ionicons 
-                        name={action.icon} 
-                        size={20} 
-                        color={action.category === 'emergency' ? HealthColors.error : colors.primary} 
-                      />
+                      <View style={[
+                        styles.quickActionIcon,
+                        { backgroundColor: `${getQuickActionColor(action.category)}20` }
+                      ]}>
+                        <Ionicons 
+                          name={action.icon} 
+                          size={22} 
+                          color={getQuickActionColor(action.category)} 
+                        />
+                      </View>
                       <Text style={[
                         styles.quickActionText, 
                         { 
-                          color: action.category === 'emergency' ? HealthColors.error : colors.text 
+                          color: action.category === 'emergency' 
+                            ? HealthColors.error 
+                            : colors.text,
+                          fontFamily: Typography.fontFamily.medium
                         }
                       ]}>
                         {action.text}
@@ -277,9 +302,9 @@ export default function ChatScreen() {
               animate={{ opacity: 1, translateY: 0, scale: 1 }}
               transition={{
                 type: 'spring',
-                damping: 15,
+                damping: 20,
                 stiffness: 100,
-                delay: index * 100,
+                delay: index * 50,
               }}
               style={[
                 styles.messageContainer,
@@ -288,7 +313,7 @@ export default function ChatScreen() {
             >
               {!message.isUser && (
                 <View style={[styles.aiMessageAvatar, { backgroundColor: colors.primary }]}>
-                  <Ionicons name="medical" size={16} color="#fff" />
+                  <Ionicons name="medical" size={18} color="#fff" />
                 </View>
               )}
               
@@ -303,14 +328,14 @@ export default function ChatScreen() {
               >
                 {message.type === 'diagnosis' && !message.isUser && (
                   <View style={styles.diagnosisHeader}>
-                    <Ionicons name="analytics" size={16} color="#fff" />
+                    <Ionicons name="analytics" size={18} color="#fff" />
                     <Text style={styles.diagnosisLabel}>AI Health Analysis</Text>
                   </View>
                 )}
 
                 {message.type === 'emergency' && !message.isUser && (
                   <View style={styles.emergencyHeader}>
-                    <Ionicons name="warning" size={16} color="#fff" />
+                    <Ionicons name="warning" size={18} color="#fff" />
                     <Text style={styles.emergencyLabel}>Emergency Assistance</Text>
                   </View>
                 )}
@@ -318,7 +343,12 @@ export default function ChatScreen() {
                 <Text
                   style={[
                     styles.messageText,
-                    { color: message.isUser || message.type === 'diagnosis' || message.type === 'emergency' ? '#fff' : colors.text }
+                    { 
+                      color: message.isUser || message.type === 'diagnosis' || message.type === 'emergency' 
+                        ? '#fff' 
+                        : colors.text,
+                      fontFamily: Typography.fontFamily.regular
+                    }
                   ]}
                 >
                   {message.text}
@@ -327,7 +357,12 @@ export default function ChatScreen() {
                 <Text
                   style={[
                     styles.messageTime,
-                    { color: message.isUser || message.type === 'diagnosis' || message.type === 'emergency' ? 'rgba(255, 255, 255, 0.7)' : colors.textMuted }
+                    { 
+                      color: message.isUser || message.type === 'diagnosis' || message.type === 'emergency' 
+                        ? 'rgba(255, 255, 255, 0.7)' 
+                        : colors.textMuted,
+                      fontFamily: Typography.fontFamily.regular
+                    }
                   ]}
                 >
                   {formatTime(message.timestamp)}
@@ -343,13 +378,13 @@ export default function ChatScreen() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{
                 type: 'spring',
-                damping: 15,
+                damping: 20,
                 stiffness: 100,
               }}
               style={styles.typingContainer}
             >
               <View style={[styles.aiMessageAvatar, { backgroundColor: colors.primary }]}>
-                <Ionicons name="medical" size={16} color="#fff" />
+                <Ionicons name="medical" size={18} color="#fff" />
               </View>
               <View style={[styles.typingBubble, { backgroundColor: colors.surface }]}>
                 <View style={styles.typingDots}>
@@ -380,15 +415,15 @@ export default function ChatScreen() {
           animate={{ opacity: 1, translateY: 0 }}
           transition={{
             type: 'spring',
-            damping: 15,
+            damping: 20,
             stiffness: 100,
             delay: 800,
           }}
-          style={[styles.inputContainer, { backgroundColor: colors.surface }]}
+          style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.border }]}
         >
           <View style={[styles.inputWrapper, { backgroundColor: colors.background }]}>
             <TextInput
-              style={[styles.textInput, { color: colors.text }]}
+              style={[styles.textInput, { color: colors.text, fontFamily: Typography.fontFamily.regular }]}
               placeholder="Ask about your health..."
               value={inputText}
               onChangeText={setInputText}
@@ -406,7 +441,7 @@ export default function ChatScreen() {
             >
               <Ionicons 
                 name="send" 
-                size={20} 
+                size={22} 
                 color={inputText.trim() ? "#fff" : colors.textMuted} 
               />
             </TouchableOpacity>
@@ -414,13 +449,19 @@ export default function ChatScreen() {
           
           <View style={styles.inputActions}>
             <TouchableOpacity style={styles.inputAction}>
-              <Ionicons name="camera" size={20} color={colors.textSecondary} />
+              <View style={[styles.inputActionIcon, { backgroundColor: `${colors.primary}15` }]}>
+                <Ionicons name="camera-outline" size={20} color={colors.primary} />
+              </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputAction}>
-              <Ionicons name="mic" size={20} color={colors.textSecondary} />
+              <View style={[styles.inputActionIcon, { backgroundColor: `${colors.accent}15` }]}>
+                <Ionicons name="mic-outline" size={20} color={colors.accent} />
+              </View>
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputAction}>
-              <Ionicons name="attach" size={20} color={colors.textSecondary} />
+              <View style={[styles.inputActionIcon, { backgroundColor: `${colors.success}15` }]}>
+                <Ionicons name="attach-outline" size={20} color={colors.success} />
+              </View>
             </TouchableOpacity>
           </View>
         </MotiView>
@@ -434,46 +475,53 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 16,
-    paddingHorizontal: 20,
+    paddingTop: isTablet ? 70 : 60,
+    paddingBottom: 20,
+    paddingHorizontal: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   aiAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   headerInfo: {
     flex: 1,
   },
   headerTitle: {
     color: '#fff',
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 4,
   },
   statusIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
   },
   onlineDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#22c55e',
-    marginRight: 6,
+    marginRight: 8,
   },
   statusText: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.9)',
     fontSize: Typography.fontSize.xs,
+    fontFamily: Typography.fontFamily.regular,
   },
   headerButton: {
     padding: 8,
@@ -485,45 +533,54 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   messagesContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
   },
   quickActionsContainer: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   quickActionsTitle: {
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   quickActionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginHorizontal: -6,
+    marginHorizontal: -8,
   },
   quickActionButton: {
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    margin: 6,
-    flexDirection: 'row',
+    borderRadius: BorderRadius.xl,
+    padding: 16,
+    margin: 8,
+    width: (width - 80) / 2,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   quickActionText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    marginLeft: 6,
+    fontFamily: Typography.fontFamily.semiBold,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   messageContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
     flexDirection: 'row',
   },
   userMessageContainer: {
@@ -533,24 +590,24 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   aiMessageAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: 12,
     marginTop: 4,
   },
   messageBubble: {
     maxWidth: width * 0.75,
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: BorderRadius['2xl'],
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   emergencyBubble: {
     borderWidth: 2,
@@ -559,24 +616,26 @@ const styles = StyleSheet.create({
   diagnosisHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   diagnosisLabel: {
     color: '#fff',
-    fontSize: Typography.fontSize.xs,
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
-    marginLeft: 6,
+    fontFamily: Typography.fontFamily.bold,
+    marginLeft: 8,
   },
   emergencyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   emergencyLabel: {
     color: '#fff',
-    fontSize: Typography.fontSize.xs,
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
-    marginLeft: 6,
+    fontFamily: Typography.fontFamily.bold,
+    marginLeft: 8,
   },
   messageText: {
     fontSize: Typography.fontSize.base,
@@ -584,67 +643,78 @@ const styles = StyleSheet.create({
   },
   messageTime: {
     fontSize: Typography.fontSize.xs,
-    marginTop: 4,
+    marginTop: 6,
   },
   typingContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   typingBubble: {
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderRadius: BorderRadius['2xl'],
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   typingDots: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   typingDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginHorizontal: 2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 3,
   },
   inputContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 8,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    borderRadius: BorderRadius.lg,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginBottom: 8,
+    borderRadius: BorderRadius['2xl'],
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderWidth: 1.5,
+    marginBottom: 12,
   },
   textInput: {
     flex: 1,
     fontSize: Typography.fontSize.base,
-    maxHeight: 100,
+    maxHeight: 120,
     paddingVertical: 8,
   },
   sendButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+    marginLeft: 12,
   },
   inputActions: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
   inputAction: {
-    padding: 8,
-    marginHorizontal: 12,
+    marginHorizontal: 8,
+  },
+  inputActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

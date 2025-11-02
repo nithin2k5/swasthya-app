@@ -60,7 +60,7 @@ export default function ProfileScreen() {
           subtitle: 'Name, age, emergency contacts',
           icon: 'person',
           type: 'navigation',
-          onPress: () => console.log('Personal info')
+          onPress: () => router.push('/personal-information' as any)
         },
         {
           id: 'medical-history',
@@ -68,7 +68,7 @@ export default function ProfileScreen() {
           subtitle: 'Conditions, allergies, medications',
           icon: 'medical',
           type: 'navigation',
-          onPress: () => console.log('Medical history')
+          onPress: () => router.push('/medical-history' as any)
         },
         {
           id: 'health-goals',
@@ -76,7 +76,7 @@ export default function ProfileScreen() {
           subtitle: 'Set and track your wellness objectives',
           icon: 'trophy',
           type: 'navigation',
-          onPress: () => console.log('Health goals')
+          onPress: () => router.push('/health-goals' as any)
         },
         {
           id: 'health-reminders',
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
           subtitle: 'Manage your encryption keys',
           icon: 'key',
           type: 'navigation',
-          onPress: () => console.log('Blockchain keys')
+          onPress: () => router.push('/blockchain-keys' as any)
         },
         {
           id: 'data-permissions',
@@ -115,7 +115,7 @@ export default function ProfileScreen() {
           subtitle: 'Control who can access your data',
           icon: 'shield-checkmark',
           type: 'navigation',
-          onPress: () => console.log('Data permissions')
+          onPress: () => router.push('/data-permissions' as any)
         },
         {
           id: 'backup',
@@ -164,7 +164,7 @@ export default function ProfileScreen() {
           subtitle: 'English (US)',
           icon: 'language',
           type: 'navigation',
-          onPress: () => console.log('Language')
+          onPress: () => router.push('/language-settings' as any)
         },
         {
           id: 'accessibility',
@@ -172,7 +172,7 @@ export default function ProfileScreen() {
           subtitle: 'Font size, voice control',
           icon: 'accessibility',
           type: 'navigation',
-          onPress: () => console.log('Accessibility')
+          onPress: () => router.push('/accessibility-settings' as any)
         }
       ]
     },
@@ -185,7 +185,7 @@ export default function ProfileScreen() {
           subtitle: 'FAQs and support articles',
           icon: 'help-circle',
           type: 'navigation',
-          onPress: () => console.log('Help')
+          onPress: () => router.push('/help-center' as any)
         },
         {
           id: 'contact',
@@ -193,7 +193,7 @@ export default function ProfileScreen() {
           subtitle: 'Get help from our team',
           icon: 'chatbubble-ellipses',
           type: 'navigation',
-          onPress: () => console.log('Contact')
+          onPress: () => router.push('/contact-support' as any)
         },
         {
           id: 'feedback',
@@ -201,7 +201,7 @@ export default function ProfileScreen() {
           subtitle: 'Help us improve the app',
           icon: 'star',
           type: 'navigation',
-          onPress: () => console.log('Feedback')
+          onPress: () => router.push('/send-feedback' as any)
         },
         {
           id: 'about',
@@ -232,8 +232,8 @@ export default function ProfileScreen() {
         onPress={item.onPress}
         disabled={item.type === 'toggle'}
       >
-        <View style={[styles.settingIcon, { backgroundColor: `${colors.secondary}20` }]}>
-          <Ionicons name={item.icon as any} size={20} color={colors.secondary} />
+        <View style={[styles.settingIcon, { backgroundColor: `${colors.primary}15` }]}>
+          <Ionicons name={item.icon as any} size={22} color={colors.primary} />
         </View>
         
         <View style={styles.settingContent}>
@@ -247,7 +247,7 @@ export default function ProfileScreen() {
           <Switch
             value={item.value}
             onValueChange={item.onPress}
-            trackColor={{ false: colors.border, true: colors.secondary }}
+            trackColor={{ false: colors.border, true: colors.primary }}
             thumbColor={item.value ? '#fff' : colors.textMuted}
           />
         ) : (
@@ -339,7 +339,7 @@ export default function ProfileScreen() {
           style={[styles.blockchainCard, { backgroundColor: colors.surface }]}
         >
           <View style={styles.blockchainHeader}>
-            <Ionicons name="cube" size={24} color={colors.secondary} />
+            <Ionicons name="cube" size={28} color={colors.primary} />
             <Text style={[styles.blockchainTitle, { color: colors.text }]}>Blockchain Status</Text>
             <View style={styles.statusBadge}>
               <MotiView
@@ -364,9 +364,9 @@ export default function ProfileScreen() {
               <Text style={[styles.blockchainStatValue, { color: colors.text }]}>0x1a2b3c...</Text>
               <Text style={[styles.blockchainStatLabel, { color: colors.textMuted }]}>Wallet Address</Text>
             </View>
-            <TouchableOpacity style={[styles.viewBlockchainButton, { backgroundColor: `${colors.secondary}20` }]}>
-              <Text style={[styles.viewBlockchainText, { color: colors.secondary }]}>View on Explorer</Text>
-              <Ionicons name="open" size={14} color={colors.secondary} />
+            <TouchableOpacity style={[styles.viewBlockchainButton, { backgroundColor: `${colors.primary}15` }]}>
+              <Text style={[styles.viewBlockchainText, { color: colors.primary }]}>View on Explorer</Text>
+              <Ionicons name="open-outline" size={16} color={colors.primary} />
             </TouchableOpacity>
           </View>
         </MotiView>
@@ -464,8 +464,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
   },
   profileSection: {
     flexDirection: 'row',
@@ -474,66 +474,76 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
-    marginRight: 16,
+    marginRight: 20,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   avatarText: {
     color: '#fff',
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
   },
   editAvatarButton: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   profileInfo: {
     flex: 1,
   },
   profileName: {
     color: '#fff',
-    fontSize: Typography.fontSize.xl,
+    fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
-    marginBottom: 4,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 6,
   },
   profileEmail: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: Typography.fontSize.sm,
-    marginBottom: 8,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontSize: Typography.fontSize.base,
+    fontFamily: Typography.fontFamily.regular,
+    marginBottom: 12,
   },
   membershipBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.lg,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.xl,
     alignSelf: 'flex-start',
   },
   membershipText: {
     color: '#fff',
-    fontSize: Typography.fontSize.xs,
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    marginLeft: 4,
+    fontFamily: Typography.fontFamily.semiBold,
+    marginLeft: 6,
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: BorderRadius.xl,
-    padding: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   statItem: {
     flex: 1,
@@ -541,63 +551,76 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: '#fff',
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 4,
   },
   statLabel: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(255, 255, 255, 0.9)',
     fontSize: Typography.fontSize.xs,
-    marginTop: 2,
+    fontFamily: Typography.fontFamily.regular,
   },
   statDivider: {
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    marginHorizontal: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 20,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    paddingTop:40,
+    
   },
   blockchainCard: {
     borderRadius: BorderRadius.xl,
-    padding: 16,
-    marginTop: -10,
-    marginBottom: 24,
+    padding: 20,
+    marginTop: -12,
+    marginBottom: 32,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   blockchainHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   blockchainTitle: {
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.bold,
-    marginLeft: 8,
+    fontFamily: Typography.fontFamily.bold,
+    marginLeft: 12,
     flex: 1,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    backgroundColor: `${HealthColors.synced}20`,
+    borderRadius: BorderRadius.lg,
   },
   statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: HealthColors.synced,
-    marginRight: 4,
+    marginRight: 6,
   },
   statusText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semiBold,
+    color: HealthColors.synced,
   },
   blockchainSubtitle: {
     fontSize: Typography.fontSize.sm,
-    marginBottom: 12,
+    fontFamily: Typography.fontFamily.regular,
+    marginBottom: 16,
+    lineHeight: 20,
   },
   blockchainStats: {
     flexDirection: 'row',
@@ -619,44 +642,48 @@ const styles = StyleSheet.create({
   viewBlockchainButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: BorderRadius.md,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.lg,
   },
   viewBlockchainText: {
-    fontSize: Typography.fontSize.xs,
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    marginRight: 4,
+    fontFamily: Typography.fontFamily.semiBold,
+    marginRight: 6,
   },
   settingSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
-    marginBottom: 12,
+    fontFamily: Typography.fontFamily.bold,
+    marginBottom: 16,
+    marginLeft: 4,
   },
   settingCard: {
     borderRadius: BorderRadius.xl,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    minHeight: 68,
   },
   settingIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   settingContent: {
     flex: 1,
@@ -664,28 +691,35 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
-    marginBottom: 2,
+    fontFamily: Typography.fontFamily.semiBold,
+    marginBottom: 4,
   },
   settingSubtitle: {
     fontSize: Typography.fontSize.sm,
+    fontFamily: Typography.fontFamily.regular,
+    lineHeight: 18,
   },
   settingDivider: {
     height: 1,
-    marginLeft: 68,
+    marginLeft: 84,
+    marginRight: 20,
   },
   dangerSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   versionContainer: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: 32,
+    paddingBottom: 40,
   },
   versionText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semiBold,
+    marginBottom: 6,
   },
   versionSubtext: {
     fontSize: Typography.fontSize.xs,
-    marginTop: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
 });
