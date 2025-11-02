@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { MotiText, MotiView } from 'moti';
 import React, { useState } from 'react';
 import {
+    Alert,
     Dimensions,
     KeyboardAvoidingView,
     Platform,
@@ -17,6 +18,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { login, ApiError } from '@/lib/api';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -31,12 +33,27 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Validation Error', 'Please enter both email and password');
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      const response = await login(email, password);
+      console.log('Login successful:', response);
       router.replace('/(tabs)');
-    }, 2000);
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error instanceof ApiError) {
+        Alert.alert('Login Failed', error.message);
+      } else {
+        Alert.alert('Login Failed', 'Please check your credentials and try again');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {

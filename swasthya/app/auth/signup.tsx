@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { MotiText, MotiView } from 'moti';
 import React, { useState } from 'react';
 import {
+    Alert,
     Dimensions,
     KeyboardAvoidingView,
     Platform,
@@ -17,6 +18,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { register, ApiError } from '@/lib/api';
 
 const { width, height } = Dimensions.get('window');
 const isTablet = width >= 768;
@@ -38,14 +40,51 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!agreedToTerms) {
+      Alert.alert('Terms Required', 'Please agree to the terms and conditions');
       return;
     }
+
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.password.trim()) {
+      Alert.alert('Validation Error', 'Please fill in all required fields');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      Alert.alert('Validation Error', 'Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      Alert.alert('Validation Error', 'Password must be at least 8 characters long');
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate signup process
-    setTimeout(() => {
+    
+    try {
+      const [firstName, ...lastNameParts] = formData.fullName.trim().split(' ');
+      const lastName = lastNameParts.join(' ') || firstName;
+      
+      const response = await register({
+        email: formData.email.trim(),
+        password: formData.password,
+        firstName,
+        lastName,
+        role: 'patient'
+      });
+      
+      console.log('Signup successful:', response);
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Signup error:', error);
+      if (error instanceof ApiError) {
+        Alert.alert('Signup Failed', error.message);
+      } else {
+        Alert.alert('Signup Failed', 'Unable to create account. Please try again.');
+      }
+    } finally {
       setIsLoading(false);
-      router.replace('/profile-setup');
-    }, 2000);
+    }
   };
 
   const handleGoogleSignup = () => {

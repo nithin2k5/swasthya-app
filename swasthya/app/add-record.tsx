@@ -17,6 +17,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadMedicalRecord, getStoredUser, ApiError } from '@/lib/api';
 
 interface RecordFormData {
   type: 'lab' | 'prescription' | 'visit' | 'imaging';
@@ -39,6 +41,7 @@ export default function AddRecordScreen() {
     attachments: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachmentUri, setAttachmentUri] = useState<string | null>(null);
 
   const recordTypes = [
     { value: 'lab', label: 'Lab Test', icon: 'flask', color: '#3B82F6' },
@@ -51,25 +54,87 @@ export default function AddRecordScreen() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const pickImage = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission needed', 'Please grant camera roll permissions.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setAttachmentUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title.trim() || !formData.provider.trim()) {
       Alert.alert('Validation Error', 'Please fill in all required fields');
       return;
     }
 
+    if (!attachmentUri) {
+      Alert.alert('Attachment Required', 'Please attach a document or image to upload.');
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const user = await getStoredUser();
+      if (!user || !user.uid) {
+        throw new Error('Not authenticated. Please login first.');
+      }
+
+      // Upload file to blockchain
+      const fileName = `${formData.type}_${Date.now()}.jpg`;
+      const result = await uploadMedicalRecord(
+        attachmentUri,
+        fileName,
+        'image/jpeg',
+        {
+          type: formData.type,
+          provider: formData.provider,
+          date: formData.date,
+          notes: formData.notes,
+          title: formData.title,
+          patientId: user.uid
+        },
+        user.uid
+      );
+
       Alert.alert(
         'Success',
-        'Record added successfully and secured on blockchain',
+        'Record uploaded successfully and secured on blockchain!',
         [
-          { text: 'OK', onPress: () => router.back() }
+          { 
+            text: 'OK', 
+            onPress: () => {
+              router.back();
+            }
+          }
         ]
       );
-    }, 2000);
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert(
+        'Upload Failed',
+        error instanceof ApiError ? error.message : 'Failed to upload record. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderField = (
@@ -206,26 +271,24 @@ export default function AddRecordScreen() {
             {/* Attach Files */}
             <View style={[styles.card, { backgroundColor: colors.surface }]}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Attachments</Text>
-              <TouchableOpacity style={[styles.attachButton, { backgroundColor: colors.background, borderColor: colors.border }]}>
+              <TouchableOpacity 
+                style={[styles.attachButton, { backgroundColor: colors.background, borderColor: colors.border }]}
+                onPress={pickImage}
+              >
                 <Ionicons name="attach-outline" size={24} color={colors.primary} />
                 <Text style={[styles.attachText, { color: colors.text }]}>
-                  Attach Document or Image
+                  {attachmentUri ? 'Change Image' : 'Attach Document or Image'}
                 </Text>
               </TouchableOpacity>
-              {formData.attachments && formData.attachments.length > 0 && (
+              {attachmentUri && (
                 <View style={styles.attachmentsList}>
-                  {formData.attachments.map((file, index) => (
-                    <View key={index} style={[styles.attachmentItem, { backgroundColor: colors.background }]}>
-                      <Ionicons name="document" size={20} color={colors.primary} />
-                      <Text style={[styles.attachmentName, { color: colors.text }]}>{file}</Text>
-                      <TouchableOpacity onPress={() => {
-                        const newAttachments = formData.attachments?.filter((_, i) => i !== index);
-                        setFormData(prev => ({ ...prev, attachments: newAttachments }));
-                      }}>
-                        <Ionicons name="close-circle" size={20} color={colors.error} />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+                  <View style={[styles.attachmentItem, { backgroundColor: colors.background }]}>
+                    <Ionicons name="image" size={20} color={colors.primary} />
+                    <Text style={[styles.attachmentName, { color: colors.text }]}>Image selected</Text>
+                    <TouchableOpacity onPress={() => setAttachmentUri(null)}>
+                      <Ionicons name="close-circle" size={20} color={colors.error} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
             </View>

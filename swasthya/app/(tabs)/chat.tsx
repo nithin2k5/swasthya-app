@@ -17,6 +17,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import { analyzeSymptoms, ApiError } from '@/lib/api';
 
 interface Message {
   id: string;
@@ -62,7 +63,7 @@ export default function ChatScreen() {
   const [showQuickActions, setShowQuickActions] = useState(true);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const sendMessage = (text: string) => {
+  const sendMessage = async (text: string) => {
     if (!text.trim()) return;
 
     const userMessage: Message = {
@@ -78,8 +79,35 @@ export default function ChatScreen() {
     setIsTyping(true);
     setShowQuickActions(false);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Call real AI analysis API
+      const response = await analyzeSymptoms([text.trim()]);
+      
+      // Format response for display
+      let analysisText = '';
+      if (response.analysis?.suggestions && response.analysis.suggestions.length > 0) {
+        const topSuggestion = response.analysis.suggestions[0];
+        analysisText = topSuggestion.description || topSuggestion.condition;
+        if (topSuggestion.recommendations && topSuggestion.recommendations.length > 0) {
+          analysisText += '\n\nRecommendations:\n• ' + topSuggestion.recommendations.join('\n• ');
+        }
+      } else {
+        analysisText = response.analysis?.analysis || response.disclaimer || 
+          'Thank you for your message. Here is some general health information.';
+      }
+      
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        text: analysisText,
+        isUser: false,
+        timestamp: new Date(),
+        type: getResponseType(text)
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('AI chat error:', error);
+      // Fallback to local response if API fails
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: generateAIResponse(text),
@@ -89,8 +117,9 @@ export default function ChatScreen() {
       };
       
       setMessages(prev => [...prev, aiResponse]);
+    } finally {
       setIsTyping(false);
-    }, 1500 + Math.random() * 1000);
+    }
   };
 
   const generateAIResponse = (userText: string): string => {

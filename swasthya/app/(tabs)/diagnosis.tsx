@@ -18,6 +18,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { diagnose, analyzeSymptoms, analyzeImage, ApiError, getStoredUser } from '@/lib/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -131,7 +132,7 @@ export default function DiagnosisScreen() {
     setImageAnalysisType(null);
   };
 
-  const startDiagnosis = () => {
+  const startDiagnosis = async () => {
     const selectedCount = selectedSymptoms.filter(s => s.selected).length;
     const hasSymptoms = selectedCount > 0 || symptoms.trim();
     const hasImage = uploadedImage !== null;
@@ -143,78 +144,73 @@ export default function DiagnosisScreen() {
 
     setCurrentStep('analyzing');
     
-    // Simulate AI analysis based on input type
-    setTimeout(() => {
+    try {
       let result: DiagnosisResult;
       
-      if (hasImage && imageAnalysisType) {
-        // Image-based analysis results
-        switch (imageAnalysisType) {
-          case 'skin':
-            result = {
-              condition: 'Possible Dermatitis',
-              confidence: 82,
-              description: 'Based on the skin image analysis, this appears to be contact dermatitis. The AI detected inflammation patterns consistent with allergic reaction.',
-              recommendations: [
-                'Avoid known allergens and irritants',
-                'Apply cool, wet compresses',
-                'Use fragrance-free moisturizers',
-                'Consider antihistamines for itching',
-                'Consult a dermatologist if symptoms persist',
-              ],
-              severity: 'low',
-            };
-            break;
-          case 'xray':
-            result = {
-              condition: 'Normal Chest X-Ray',
-              confidence: 91,
-              description: 'The chest X-ray analysis shows normal lung fields with no obvious abnormalities detected by our AI system.',
-              recommendations: [
-                'Results appear normal',
-                'Continue regular health monitoring',
-                'Maintain healthy lifestyle habits',
-                'Follow up with your doctor as scheduled',
-                'Seek medical attention if symptoms develop',
-              ],
-              severity: 'low',
-            };
-            break;
-          default:
-            result = {
-              condition: 'Image Analysis Complete',
-              confidence: 78,
-              description: 'Our AI has analyzed your medical image. While some patterns were detected, a professional medical evaluation is recommended for accurate diagnosis.',
-              recommendations: [
-                'Consult with a healthcare professional',
-                'Bring this image to your appointment',
-                'Monitor any changes in the condition',
-                'Keep a record of symptoms',
-                'Follow up as recommended by your doctor',
-              ],
-              severity: 'medium',
-            };
+      if (hasImage && imageAnalysisType && uploadedImage) {
+        // Image-based analysis - call real API
+        console.log('Analyzing image via API...');
+        const imageResponse = await analyzeImage(uploadedImage, 'image/jpeg');
+        
+        // Map API response to our UI format
+        const imageAnalysis = imageResponse.analysis;
+        result = {
+          condition: imageAnalysis.diagnosis || 'No specific condition identified',
+          confidence: Math.round(imageAnalysis.confidence * 100),
+          description: imageAnalysis.findings?.join('. ') || 'Image analysis completed.',
+          recommendations: imageAnalysis.recommendations || [],
+          severity: imageAnalysis.confidence > 0.7 ? 'low' : imageAnalysis.confidence > 0.4 ? 'medium' : 'high',
+        };
+      } else if (hasSymptoms) {
+        // Symptom-based analysis - call real API
+        const symptomList = selectedSymptoms
+          .filter(s => s.selected)
+          .map(s => s.name);
+        
+        if (symptomList.length === 0 && symptoms.trim()) {
+          symptomList.push(symptoms.trim());
+        }
+        
+        console.log('Analyzing symptoms via API:', symptomList);
+        const user = await getStoredUser();
+        const diagnosisResponse = await diagnose(symptomList, symptoms.trim());
+        
+        // Map API response to our UI format
+        const topSuggestion = diagnosisResponse.diagnosis?.suggestions?.[0];
+        if (topSuggestion) {
+          result = {
+            condition: topSuggestion.condition || 'Unknown condition',
+            confidence: Math.round((topSuggestion.probability || 0) * 100),
+            description: topSuggestion.description || diagnosisResponse.diagnosis?.analysis || 'Analysis completed.',
+            recommendations: topSuggestion.recommendations || [],
+            severity: topSuggestion.probability > 0.7 ? 'low' : topSuggestion.probability > 0.4 ? 'medium' : 'high',
+          };
+        } else {
+          // Fallback if no suggestions
+          result = {
+            condition: 'No specific diagnosis',
+            confidence: 0,
+            description: 'Could not identify specific condition. Please consult with a healthcare professional.',
+            recommendations: ['Schedule an appointment with a doctor', 'Provide more detailed symptom information'],
+            severity: 'high',
+          };
         }
       } else {
-        // Symptom-based analysis (original logic)
-        result = {
-          condition: 'Common Cold',
-          confidence: 87,
-          description: 'Based on your symptoms, you likely have a common cold. This is a viral infection of the upper respiratory tract.',
-          recommendations: [
-            'Get plenty of rest',
-            'Stay hydrated with fluids',
-            'Use a humidifier or breathe steam',
-            'Consider over-the-counter pain relievers',
-            'Consult a doctor if symptoms worsen',
-          ],
-          severity: 'low',
-        };
+        throw new Error('No valid input provided');
       }
       
       setDiagnosisResult(result);
       setCurrentStep('results');
-    }, 4000);
+    } catch (error) {
+      console.error('Diagnosis error:', error);
+      Alert.alert(
+        'Analysis Failed', 
+        error instanceof ApiError 
+          ? error.message 
+          : 'Unable to complete analysis. Please try again or consult a healthcare professional.'
+      );
+      setCurrentStep('input');
+    }
   };
 
   const resetDiagnosis = () => {

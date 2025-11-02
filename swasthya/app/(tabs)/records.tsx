@@ -5,8 +5,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { getPatientRecords, getStoredUser, ApiError } from '@/lib/api';
 
 interface HealthRecord {
   id: string;
@@ -18,58 +19,48 @@ interface HealthRecord {
   blockchainHash?: string;
 }
 
-const mockRecords: HealthRecord[] = [
-  {
-    id: '1',
-    type: 'lab',
-    title: 'Complete Blood Count',
-    date: '2024-10-28',
-    provider: 'City Medical Lab',
-    status: 'verified',
-    blockchainHash: '0x1a2b3c4d5e6f7890abcdef1234567890',
-  },
-  {
-    id: '2',
-    type: 'prescription',
-    title: 'Vitamin D Supplement',
-    date: '2024-10-25',
-    provider: 'Dr. Sarah Johnson',
-    status: 'verified',
-    blockchainHash: '0x5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t',
-  },
-  {
-    id: '3',
-    type: 'visit',
-    title: 'Annual Physical Exam',
-    date: '2024-10-20',
-    provider: 'HealthCare Clinic',
-    status: 'encrypted',
-    blockchainHash: '0x9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x',
-  },
-  {
-    id: '4',
-    type: 'imaging',
-    title: 'Chest X-Ray',
-    date: '2024-10-15',
-    provider: 'Radiology Center',
-    status: 'pending',
-  },
-  {
-    id: '5',
-    type: 'lab',
-    title: 'Lipid Panel',
-    date: '2024-10-10',
-    provider: 'City Medical Lab',
-    status: 'verified',
-    blockchainHash: '0x1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j',
-  },
-];
-
 export default function RecordsScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [records, setRecords] = useState<HealthRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch records on mount
+  useEffect(() => {
+    loadRecords();
+  }, []);
+
+  const loadRecords = async () => {
+    setIsLoading(true);
+    try {
+      const user = await getStoredUser();
+      if (user && user.uid) {
+        const response = await getPatientRecords(user.uid);
+        
+        // Map backend records to UI format
+        const mappedRecords: HealthRecord[] = (response.records || []).map((record: any, index: number) => ({
+          id: record.recordId || record.id || `record-${index}`,
+          type: record.metadata?.type || record.labels?.[0]?.toLowerCase() || 'lab',
+          title: record.originalName || record.filename || 'Medical Record',
+          date: new Date(record.createdAt || record.timestamp).toISOString().split('T')[0],
+          provider: record.metadata?.provider || 'Unknown Provider',
+          status: record.blockHash ? 'verified' : 'pending',
+          blockchainHash: record.blockHash || record.hash,
+        }));
+        
+        setRecords(mappedRecords);
+      }
+    } catch (error) {
+      console.error('Error loading records:', error);
+      if (error instanceof ApiError) {
+        Alert.alert('Error', 'Failed to load medical records: ' + error.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getRecordIcon = (type: string) => {
     switch (type) {
@@ -114,7 +105,7 @@ export default function RecordsScreen() {
     }
   };
 
-  const filteredRecords = mockRecords.filter(record => {
+  const filteredRecords = records.filter(record => {
     const matchesSearch = record.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          record.provider.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = selectedFilter === 'all' || record.type === selectedFilter;

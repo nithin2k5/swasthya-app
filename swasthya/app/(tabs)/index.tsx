@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { MotiText, MotiView } from 'moti';
 import React, { useEffect, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getStoredUser } from '@/lib/api';
 
 const { width } = Dimensions.get('window');
 
@@ -24,7 +25,24 @@ export default function HomeScreen() {
   const { colors, isDark } = useTheme();
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [userName] = useState('John Doe');
+  const [userName, setUserName] = useState<string>('User');
+
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const user = await getStoredUser();
+      if (user) {
+        setUserName(user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user.email || 'User');
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {

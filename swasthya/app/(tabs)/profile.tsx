@@ -5,8 +5,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { MotiView } from 'moti';
-import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, Image } from 'react-native';
+import { logout, getStoredUser, clearAuth } from '@/lib/api';
 
 interface SettingItem {
   id: string;
@@ -27,14 +28,41 @@ export default function ProfileScreen() {
   const [dataBackupEnabled, setDataBackupEnabled] = useState(true);
   const [healthReminders, setHealthReminders] = useState(true);
   const [shareAnalytics, setShareAnalytics] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const user = await getStoredUser();
+      setUserData(user);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  };
+
+  const handleLogout = async () => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: () => console.log('Logout') }
+        { 
+          text: 'Logout', 
+          style: 'destructive', 
+          onPress: async () => {
+            try {
+              await logout();
+              await clearAuth();
+              router.replace('/auth/login');
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          }
+        }
       ]
     );
   };
@@ -279,7 +307,9 @@ export default function ProfileScreen() {
         >
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>JD</Text>
+              <Text style={styles.avatarText}>
+                {userData?.firstName?.[0] || 'U'}{userData?.lastName?.[0] || ''}
+              </Text>
             </View>
             <TouchableOpacity style={styles.editAvatarButton}>
               <Ionicons name="camera" size={16} color="#fff" />
@@ -287,8 +317,12 @@ export default function ProfileScreen() {
           </View>
           
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>John Doe</Text>
-            <Text style={styles.profileEmail}>john.doe@email.com</Text>
+            <Text style={styles.profileName}>
+              {userData?.firstName && userData?.lastName 
+                ? `${userData.firstName} ${userData.lastName}` 
+                : userData?.email || 'User'}
+            </Text>
+            <Text style={styles.profileEmail}>{userData?.email || ''}</Text>
             <View style={styles.membershipBadge}>
               <Ionicons name="shield-checkmark" size={14} color={HealthColors.verified} />
               <Text style={styles.membershipText}>Verified Member</Text>
